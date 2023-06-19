@@ -1,10 +1,12 @@
-const express = require('express')
+const express = require('express') // express is used to create the server
 
-const cookieParser = require('cookie-parser')
+// const cookieParser = require('cookie-parser') // cookie parser is used to parse the cookies
+const session = require('express-session') // express session is used to create the session
+const store = new session.MemoryStore(); // store is used to store the session id in the server
 
-const app = express();
-const port = 3000;
-const cors = require('cors');
+const app = express(); // app is used to create the server
+const port = 3000; // port is used to set the port number of the server
+const cors = require('cors'); // cors is used to allow the cross origin resource sharing
 
 // middleware to log the request object 
 
@@ -18,16 +20,29 @@ const cors = require('cors');
 // End the request-response cycle.
 // Call the next middleware function in the stack.
 
+
+
 app.use(cors());    // cors is used to allow the cross origin resource sharing
-app.use(cookieParser());    // cookie parser is used to parse the cookies
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use((req, res, next) => {
-    console.log(`${req.method} - ${req.url}`);
-    next();
+// app.use(cookieParser());    // cookie parser is used to parse the cookies
+
+app.use(session({
+    secret: 'secret',   // secret is used to encrypt the session id
+    saveUninitialized: false,  // saveUninitialized is used to save the session id in the server
+    cookie: {  // cookie is used to set the cookie
+        maxAge: 1000 * 60 * 60 * 24 * 2, // maxAge is used to set the expiry time of the cookie
+    },
+    resave: true, // save is used to save the cookie
+    store // store is used to store the session id in the server
+}))
+app.use(express.json());   // express.json is used to parse the json data
+app.use(express.urlencoded({ extended: false })); // express.urlencoded is used to parse the url encoded data
+
+app.use((req, res, next) => {  // middleware function to log the request object
+    console.log(store)
+    console.log(`${req.method} - ${req.url}`); // req.method is used to get the method of the request
+    next(); // next is used to call the next middleware function
     // console.log(req.method);
 })
-
 
 // cookies and sessions  // cookies are stored in the browser and sessions are stored in the server 
 
@@ -124,7 +139,9 @@ app.get('/users/:name', (req, res) => {
     }
 })
 
-function validateCookies(req, res, next){
+
+// function to validate the cookies 
+function validateCookies(req, res, next) {
     const { cookies } = req;
     console.log(cookies);
     next();
@@ -142,20 +159,43 @@ function validateCookies(req, res, next){
     // }
 
 }
+// cookies parsing means that the cookies are parsed and stored in the cookies object
+// app.get('/signin', validateCookies, (req, res) => {
+//     res.cookie('session_id', '123456')
+//     res.status(200).json({'msg': 'Sign in page'})
+// })
 
-app.get('/signin', validateCookies, (req, res) => {
-    res.cookie('session_id', '123456')
-    res.status(200).json({'msg': 'Sign in page'})
+// app.get('/signout', (req, res) => {
+//     res.clearCookie('session_id')
+//     res.status(200).json({'msg': 'Sign out page'})
+// })
+
+
+// session parsing means that the session id is parsed and stored in the session object
+app.post('/login', (req, res) => {
+    console.log(req.sessionID)
+    const { username, password } = req.body;
+    if (username && password) {
+        if (req.session.authenticated) {
+            res.json(req.session)
+        }
+        else {
+            if (password === '123456') {
+                req.session.authenticated = true;
+                req.session.user = {username, password};
+                res.json(req.session)
+            }
+            else {
+                res.status(401).json({ 'msg': 'Unauthorized' })
+            }
+        }
+    }
+    // res.status(200).json({ 'msg': 'Login page' })
 })
 
-app.get('/signout', (req, res) => {
-    res.clearCookie('session_id')
-    res.status(200).json({'msg': 'Sign out page'})
-})
 
 
-// put method to update the data in the server
-
+// app listening on port 3000 means that the server is running on port 3000
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 })
