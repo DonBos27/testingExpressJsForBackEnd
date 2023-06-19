@@ -3,9 +3,12 @@ const express = require('express') // express is used to create the server
 // const cookieParser = require('cookie-parser') // cookie parser is used to parse the cookies
 const session = require('express-session') // express session is used to create the session
 const store = new session.MemoryStore(); // store is used to store the session id in the server
+const passport = require('passport'); // passport is used to authenticate the user
 
+const local = require('./strategies/local'); // local is used to authenticate the user using local strategy
 const userRoute = require('./routes/users') // userRoute is used to get the user routes
 const postRoute = require('./routes/posts') // postRoute is used to get the post routes
+const authRoute = require('./routes/auth') // authRoute is used to get the auth routes
 
 const app = express(); // app is used to create the server
 const port = 3000; // port is used to set the port number of the server
@@ -44,10 +47,13 @@ app.use((req, res, next) => {  // middleware function to log the request object
     next(); // next is used to call the next middleware function
     // console.log(req.method);
 })
+app.use(passport.initialize()); // passport.initialize is used to initialize the passport
+app.use(passport.session()); // passport.session is used to create the session
 
 
 app.use('/users', userRoute); // userRoute is used to get the user routes
 app.use('/posts', postRoute); // postRoute is used to get the post routes
+app.use('/auth', authRoute); // authRoute is used to get the auth routes
 
 // app listening on port 3000 means that the server is running on port 3000
 app.listen(port, () => {
