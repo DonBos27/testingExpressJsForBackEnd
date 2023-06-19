@@ -1,4 +1,7 @@
 const express = require('express')
+
+const cookieParser = require('cookie-parser')
+
 const app = express();
 const port = 3000;
 const cors = require('cors');
@@ -16,12 +19,13 @@ const cors = require('cors');
 // Call the next middleware function in the stack.
 
 app.use(cors());    // cors is used to allow the cross origin resource sharing
+app.use(cookieParser());    // cookie parser is used to parse the cookies
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
     console.log(`${req.method} - ${req.url}`);
     next();
-    console.log(req.method);
+    // console.log(req.method);
 })
 
 
@@ -118,6 +122,35 @@ app.get('/users/:name', (req, res) => {
     else {
         res.status(404).send('User not found')
     }
+})
+
+function validateCookies(req, res, next){
+    const { cookies } = req;
+    console.log(cookies);
+    next();
+    // if('session_id' in cookies){
+    //     if(cookies.session_id === '123456'){
+    //         next();
+    //         console.log("Session id is valid")
+    //     }
+    //     else{
+    //         res.status(403).send('Forbidden')
+    //     }
+    // }
+    // else{
+    //     res.status(403).send('Forbidden')
+    // }
+
+}
+
+app.get('/signin', validateCookies, (req, res) => {
+    res.cookie('session_id', '123456')
+    res.status(200).json({'msg': 'Sign in page'})
+})
+
+app.get('/signout', (req, res) => {
+    res.clearCookie('session_id')
+    res.status(200).json({'msg': 'Sign out page'})
 })
 
 
