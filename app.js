@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express();
 const port = 3000;
+const cors = require('cors');
 
 // middleware to log the request object 
 
@@ -14,6 +15,7 @@ const port = 3000;
 // End the request-response cycle.
 // Call the next middleware function in the stack.
 
+app.use(cors());    // cors is used to allow the cross origin resource sharing
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
@@ -23,19 +25,25 @@ app.use((req, res, next) => {
 })
 
 
-// Datas  
+// cookies and sessions  // cookies are stored in the browser and sessions are stored in the server 
+
+
+// Datas to be sent to the server
 
 const users = [
     {
+        id: 1,
         name: 'Michael',
         age: 22
     },
     {
+        id: 2,
         name: 'Don',
         age: 22
 
     },
     {
+        id: 3,
         name: 'Christ',
         age: 22
 
@@ -74,6 +82,8 @@ app.get('/', (req, res) => {
     res.status(200).send('Hello World!');
 })
 
+
+// get method to get the data from the server by title 
 app.get('/post/:title', (req, res) => {
     const { title } = req.query;
     console.log(req.query);
@@ -89,6 +99,7 @@ app.get('/post/:title', (req, res) => {
     // res.send(post)
 })
 
+// get method to get the data from the server
 app.get('/post', (req, res) => {
     res.send(post)
 })
@@ -108,6 +119,9 @@ app.get('/users/:name', (req, res) => {
         res.status(404).send('User not found')
     }
 })
+
+
+// put method to update the data in the server
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);

@@ -9,6 +9,7 @@ And this will help me to easily learn other backend frameworks like Django, Lara
 - How to create a server using Express Js
 - How to create routes
 - How to use middleware
+- used `cors` middleware to allow cross origin requests
 
 
 ## What I am yet to learn
